@@ -31,12 +31,15 @@ export default function Dashboard() {
       navigator.geolocation.getCurrentPosition((position) => {
         const { latitude, longitude } = position.coords
         console.log(latitude, longitude)
+        // setCurrentLocation({ lat: latitude, lng: longitude })
 
       }, (error) => {
         console.error("Error getting location", error)
       },
         {
-          enableHighAccuracy: true
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
         })
     }
   }, [])

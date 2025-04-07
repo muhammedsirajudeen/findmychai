@@ -13,7 +13,6 @@ import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 import { Button } from "./ui/button"
 import { MapIcon } from "lucide-react"
-
 // Fix marker icons within component scope
 const fixLeafletIcons = () => {
   delete (L.Icon.Default.prototype as any)._getIconUrl
@@ -50,7 +49,8 @@ const chaiSpots: {
     {
       id: 1,
       name: "Chai Corner",
-      position: [40.712776, -74.005974],
+      // 10.9309142, lng: 76.4214447
+      position: [10.9369142, 76.4214447],
       rating: 4.5,
       reviews: 12,
     },
@@ -95,7 +95,9 @@ export default function MapView({ longitude, latitude }: MapViewProps) {
       mapRef.current.setView([latitude, longitude], 14)
     }
   }
-
+  const viewDetails = () => {
+    // Handle view details action
+  }
   return (
     <div className="relative h-full w-full">
 
@@ -149,7 +151,7 @@ export default function MapView({ longitude, latitude }: MapViewProps) {
                     ({spot.reviews} reviews)
                   </div>
                 </div>
-                <button className="mt-2 text-sm text-orange-500 hover:text-orange-600">
+                <button className="mt-2 text-sm text-orange-500 hover:text-orange-600" onClick={viewDetails}>
                   View Details
                 </button>
               </div>
