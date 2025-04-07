@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MainNav } from "@/components/main-nav"
@@ -9,7 +9,6 @@ import { useIsMobile } from "@/hooks/use-mobile"
 import dynamic from "next/dynamic"
 import AddChaiSpotModal from "@/components/add-chai-spot-modal"
 
-// Import MapView with no SSR since Leaflet requires window object
 const MapView = dynamic(() => import("@/components/map-view"), {
   ssr: false,
   loading: () => (
@@ -25,21 +24,31 @@ export default function Dashboard() {
   const [showAddSpot, setShowAddSpot] = useState(false)
   const isMobile = useIsMobile()
 
-  // Mock current location (New York City)
-  const currentLocation = { lat: 40.712776, lng: -74.005974 }
+  const [currentLocation, setCurrentLocation] = useState({ lat: 10.9309142, lng: 76.4214447 })
+  const [selectedLocation, setSelectedLocation] = useState({ lat: 10.9309142, lng: 76.4214447 })
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords
+        console.log(latitude, longitude)
 
+      }, (error) => {
+        console.error("Error getting location", error)
+      },
+        {
+          enableHighAccuracy: true
+        })
+    }
+  }, [])
   return (
     <div className="min-h-screen bg-amber-50 flex flex-col">
-      {!isMobile && <MainNav />}
 
       <main className="flex-1 relative">
         <div className="w-full h-[calc(100vh-4rem)] bg-orange-100 relative">
-          {/* Leaflet Map */}
           <div className="absolute inset-0">
-            {/* <MapView /> */}
+            <MapView latitude={currentLocation.lat} longitude={currentLocation.lng} />
           </div>
 
-          {/* Add Chai Spot Button */}
           <Button
             onClick={() => setShowAddSpot(true)}
             className="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-orange-500 hover:bg-orange-600 shadow-lg z-[1000]"
@@ -50,10 +59,8 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {/* Add Chai Spot Modal */}
       <AddChaiSpotModal isOpen={showAddSpot} onClose={() => setShowAddSpot(false)} currentLocation={currentLocation} />
 
-      {isMobile && <MobileNav />}
     </div>
   )
 }
