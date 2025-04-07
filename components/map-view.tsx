@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   MapContainer,
   TileLayer,
@@ -13,7 +13,7 @@ import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 import { Button } from "./ui/button"
 import { MapIcon } from "lucide-react"
-// Fix marker icons within component scope
+
 const fixLeafletIcons = () => {
   delete (L.Icon.Default.prototype as any)._getIconUrl
   L.Icon.Default.mergeOptions({
@@ -23,7 +23,6 @@ const fixLeafletIcons = () => {
   })
 }
 
-// Custom chai SVG icon
 const chaiIcon = new L.Icon({
   iconUrl:
     "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%23FF9800' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'%3E%3Cpath d='M17 8h1a4 4 0 1 1 0 8h-1'%3E%3C/path%3E%3Cpath d='M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z'%3E%3C/path%3E%3Cline x1='6' y1='2' x2='6' y2='4'%3E%3C/line%3E%3Cline x1='10' y1='2' x2='10' y2='4'%3E%3C/line%3E%3Cline x1='14' y1='2' x2='14' y2='4'%3E%3C/line%3E%3C/svg%3E",
@@ -38,37 +37,29 @@ const locationIcon = new L.Icon({
   popupAnchor: [0, -32],
 })
 
-// Dummy chai spot data
-const chaiSpots: {
-  id: number
-  name: string
-  position: [number, number]
-  rating: number
-  reviews: number
-}[] = [
-    {
-      id: 1,
-      name: "Chai Corner",
-      // 10.9309142, lng: 76.4214447
-      position: [10.9369142, 76.4214447],
-      rating: 4.5,
-      reviews: 12,
-    },
-    {
-      id: 2,
-      name: "Spice Chai House",
-      position: [40.716776, -74.012974],
-      rating: 4.2,
-      reviews: 8,
-    },
-    {
-      id: 3,
-      name: "Masala Chai Cafe",
-      position: [40.718776, -74.003974],
-      rating: 4.8,
-      reviews: 23,
-    },
-  ]
+const chaiSpots: { id: number; name: string; position: [number, number]; rating: number; reviews: number }[] = [
+  {
+    id: 1,
+    name: "Chai Corner",
+    position: [10.9369142, 76.4214447],
+    rating: 4.5,
+    reviews: 12,
+  },
+  {
+    id: 2,
+    name: "Spice Chai House",
+    position: [40.716776, -74.012974],
+    rating: 4.2,
+    reviews: 8,
+  },
+  {
+    id: 3,
+    name: "Masala Chai Cafe",
+    position: [40.718776, -74.003974],
+    rating: 4.8,
+    reviews: 23,
+  },
+]
 
 function SetViewOnLoad({ center }: { center: [number, number] }) {
   const map = useMap()
@@ -85,6 +76,8 @@ interface MapViewProps {
 
 export default function MapView({ longitude, latitude }: MapViewProps) {
   const mapRef = useRef<L.Map | null>(null)
+  const [longPressTimeout, setLongPressTimeout] = useState<NodeJS.Timeout | null>(null)
+  const [longPressLocation, setLongPressLocation] = useState<[number, number] | null>(null)
 
   useEffect(() => {
     fixLeafletIcons()
@@ -95,12 +88,41 @@ export default function MapView({ longitude, latitude }: MapViewProps) {
       mapRef.current.setView([latitude, longitude], 14)
     }
   }
-  const viewDetails = () => {
-    // Handle view details action
-  }
-  return (
-    <div className="relative h-full w-full">
 
+  const handleLongPressStart = (event: React.MouseEvent | React.TouchEvent) => {
+    const timeout = setTimeout(() => {
+      if (mapRef.current) {
+        const map = mapRef.current
+        const containerPoint = event instanceof MouseEvent
+          ? map.mouseEventToContainerPoint(event as MouseEvent)
+          : map.mouseEventToContainerPoint({
+            clientX: 'touches' in event ? event.touches[0].clientX : 0,
+            clientY: 'touches' in event ? event.touches[0].clientY : 0,
+          } as MouseEvent)
+        const latlng = map.containerPointToLatLng(containerPoint)
+        setLongPressLocation([latlng.lat, latlng.lng])
+        alert(`Long press detected at ${latlng.lat}, ${latlng.lng}`)
+      }
+    }, 2000) // 2 seconds
+    setLongPressTimeout(timeout)
+  }
+
+  const handleLongPressEnd = () => {
+    if (longPressTimeout) {
+      clearTimeout(longPressTimeout)
+      setLongPressTimeout(null)
+    }
+  }
+
+  return (
+    <div
+      className="relative h-full w-full"
+      onMouseDown={handleLongPressStart}
+      onMouseUp={handleLongPressEnd}
+      onMouseLeave={handleLongPressEnd}
+      onTouchStart={handleLongPressStart}
+      onTouchEnd={handleLongPressEnd}
+    >
       <MapContainer
         center={[latitude, longitude]}
         zoom={14}
@@ -116,26 +138,11 @@ export default function MapView({ longitude, latitude }: MapViewProps) {
           <p>current location</p>
         </Marker>
 
-        <div className="leaflet-bottom leaflet-right" style={{ margin: "20px" }}>
-          <div className="leaflet-control leaflet-bar">
-            <button
-              className="bg-white p-2 rounded-t-md border border-amber-200 hover:bg-amber-50"
-              onClick={() =>
-                document.querySelector(".leaflet-control-zoom-in")?.dispatchEvent(new Event("click", { bubbles: true }))
-              }
-            >
-              +
-            </button>
-            <button
-              className="bg-white p-2 rounded-b-md border-t-0 border border-amber-200 hover:bg-amber-50"
-              onClick={() =>
-                document.querySelector(".leaflet-control-zoom-out")?.dispatchEvent(new Event("click", { bubbles: true }))
-              }
-            >
-              -
-            </button>
-          </div>
-        </div>
+        {longPressLocation && (
+          <Marker position={longPressLocation} icon={locationIcon}>
+            <Popup>Long press location</Popup>
+          </Marker>
+        )}
 
         <ZoomControl position="bottomleft" />
 
@@ -151,7 +158,7 @@ export default function MapView({ longitude, latitude }: MapViewProps) {
                     ({spot.reviews} reviews)
                   </div>
                 </div>
-                <button className="mt-2 text-sm text-orange-500 hover:text-orange-600" onClick={viewDetails}>
+                <button className="mt-2 text-sm text-orange-500 hover:text-orange-600">
                   View Details
                 </button>
               </div>
@@ -169,7 +176,6 @@ export default function MapView({ longitude, latitude }: MapViewProps) {
         <MapIcon className="w-4 h-4 text-amber-500" />
         <span className="text-sm font-medium text-amber-700">Recenter Map</span>
       </Button>
-
     </div>
   )
 }
