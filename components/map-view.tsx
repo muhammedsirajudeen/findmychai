@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react"
 import {
   MapContainer,
   TileLayer,
@@ -65,16 +65,18 @@ function SetViewOnLoad({ center }: { center: [number, number] }) {
   const map = useMap()
   useEffect(() => {
     map.setView(center, 14)
-  }, [map, center])
+  }, [])
   return null
 }
 
 interface MapViewProps {
   longitude: number
   latitude: number
+  setSelectedLocation: Dispatch<SetStateAction<{ lat: number; lng: number }>>
+  onDropPin: () => void
 }
-
-export default function MapView({ longitude, latitude }: MapViewProps) {
+//The value isnt reactive so keep it there
+export default function MapView({ longitude, latitude, setSelectedLocation, onDropPin }: MapViewProps) {
   const mapRef = useRef<L.Map | null>(null)
   const [longPressTimeout, setLongPressTimeout] = useState<NodeJS.Timeout | null>(null)
   const [longPressLocation, setLongPressLocation] = useState<[number, number] | null>(null)
@@ -93,19 +95,31 @@ export default function MapView({ longitude, latitude }: MapViewProps) {
     const timeout = setTimeout(() => {
       if (mapRef.current) {
         const map = mapRef.current
-        const containerPoint = event instanceof MouseEvent
-          ? map.mouseEventToContainerPoint(event as MouseEvent)
-          : map.mouseEventToContainerPoint({
-            clientX: 'touches' in event ? event.touches[0].clientX : 0,
-            clientY: 'touches' in event ? event.touches[0].clientY : 0,
-          } as MouseEvent)
-        const latlng = map.containerPointToLatLng(containerPoint)
-        setLongPressLocation([latlng.lat, latlng.lng])
-        alert(`Long press detected at ${latlng.lat}, ${latlng.lng}`)
+        let clientX = 0
+        let clientY = 0
+
+        if ('touches' in event && event.touches.length > 0) {
+          clientX = event.touches[0].clientX
+          clientY = event.touches[0].clientY
+        } else if ('clientX' in event) {
+          clientX = event.clientX
+          clientY = event.clientY
+        }
+        const containerPoint = map.containerPointToLatLng(
+          map.mouseEventToContainerPoint({ clientX, clientY } as MouseEvent)
+        )
+
+        setLongPressLocation([containerPoint.lat, containerPoint.lng])
+        setSelectedLocation({ lat: containerPoint.lat, lng: containerPoint.lng })
+        setTimeout(() => {
+          onDropPin()
+        }, 1000)
       }
-    }, 2000) // 2 seconds
+    }, 1000) // You can adjust the delay
+
     setLongPressTimeout(timeout)
   }
+
 
   const handleLongPressEnd = () => {
     if (longPressTimeout) {
@@ -116,7 +130,7 @@ export default function MapView({ longitude, latitude }: MapViewProps) {
 
   return (
     <div
-      className="relative h-full w-full"
+      className="relative h-full w-full touch-none"
       onMouseDown={handleLongPressStart}
       onMouseUp={handleLongPressEnd}
       onMouseLeave={handleLongPressEnd}

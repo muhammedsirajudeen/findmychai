@@ -23,7 +23,7 @@ const MapView = dynamic(() => import("@/components/map-view"), {
 export default function Dashboard() {
   const [showAddSpot, setShowAddSpot] = useState(false)
   const isMobile = useIsMobile()
-
+  // t 10.968999074933427, 76.37060165405275
   const [currentLocation, setCurrentLocation] = useState({ lat: 10.9309142, lng: 76.4214447 })
   const [selectedLocation, setSelectedLocation] = useState({ lat: 10.9309142, lng: 76.4214447 })
   useEffect(() => {
@@ -43,13 +43,17 @@ export default function Dashboard() {
         })
     }
   }, [])
+  const openModalAtPin = () => {
+    setShowAddSpot(true)
+    setCurrentLocation(selectedLocation)
+  }
   return (
     <div className="min-h-screen bg-amber-50 flex flex-col">
 
       <main className="flex-1 relative">
         <div className="w-full h-[calc(100vh-4rem)] bg-orange-100 relative">
           <div className="absolute inset-0">
-            <MapView latitude={currentLocation.lat} longitude={currentLocation.lng} />
+            <MapView onDropPin={openModalAtPin} setSelectedLocation={setSelectedLocation} latitude={currentLocation.lat} longitude={currentLocation.lng} />
           </div>
 
           <Button
@@ -62,7 +66,7 @@ export default function Dashboard() {
         </div>
       </main>
 
-      <AddChaiSpotModal isOpen={showAddSpot} onClose={() => setShowAddSpot(false)} currentLocation={currentLocation} />
+      <AddChaiSpotModal isOpen={showAddSpot} onClose={() => setShowAddSpot(false)} currentLocation={selectedLocation} />
 
     </div>
   )
