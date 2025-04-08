@@ -30,8 +30,6 @@ export default function Dashboard() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
         const { latitude, longitude } = position.coords
-        console.log(latitude, longitude)
-        // setCurrentLocation({ lat: latitude, lng: longitude })
 
       }, (error) => {
         console.error("Error getting location", error)

@@ -1,13 +1,8 @@
-'use client'
-import Link from "next/link"
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { toast } from "sonner"
+import GoogleLogin from "@/components/auth/GoogleLogin"
 
 export default function LandingPage() {
-  const loginHandler = () => {
-    // toast("hey")
-  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50 flex flex-col items-center justify-center p-4 md:p-8">
       <div className="w-full max-w-md mx-auto text-center">
@@ -29,11 +24,7 @@ export default function LandingPage() {
           />
         </div>
 
-        <Link href="/dashboard">
-          <Button onClick={loginHandler} className="w-full py-6 text-lg bg-gradient-to-r from-amber-500 to-orange-400 hover:from-amber-600 hover:to-orange-500 text-white rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-            Login with Google
-          </Button>
-        </Link>
+        <GoogleLogin />
 
         <p className="mt-6 text-amber-600 text-sm">Discover and share your favorite chai spots around the world</p>
       </div>
