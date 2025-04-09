@@ -1,9 +1,10 @@
 'use client'
 import axiosInstance from "@/app/utils/axiosInstance";
 import { Button } from "../ui/button";
-import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
-import { toast } from "sonner";
+import { useGoogleLogin } from '@react-oauth/google';
 import { AxiosError } from "axios";
+import { toast } from "@/hooks/use-toast";
+import ToastStyles from "@/app/constant/ToastStyles";
 
 export default function GoogleLogin() {
     const login = useGoogleLogin({
@@ -14,11 +15,13 @@ export default function GoogleLogin() {
                     access_token: tokenResponse.access_token,
                 })
                 console.log(response.data)
-                toast.success('Login successful');
+                toast({ title: 'Login Successful', description: 'You have successfully logged in', className: ToastStyles.success })
             } catch (error) {
                 const axiosError = error as AxiosError
                 if (axiosError.status === 400) {
-                    toast.error('Invalid credentials');
+                    toast({ title: 'Login Failed', description: 'Invalid credentials', className: ToastStyles.error })
+                } else {
+                    toast({ title: 'Login Failed', description: 'Something went wrong', className: ToastStyles.error })
                 }
             }
         },

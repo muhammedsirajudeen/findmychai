@@ -1,8 +1,6 @@
 import Image from "next/image"
 import GoogleLogin from "@/components/auth/GoogleLogin"
-
 export default function LandingPage() {
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50 flex flex-col items-center justify-center p-4 md:p-8">
       <div className="w-full max-w-md mx-auto text-center">
@@ -23,7 +21,6 @@ export default function LandingPage() {
             className="object-contain"
           />
         </div>
-
         <GoogleLogin />
 
         <p className="mt-6 text-amber-600 text-sm">Discover and share your favorite chai spots around the world</p>

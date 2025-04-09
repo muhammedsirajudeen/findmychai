@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
         // console.log(await request.json())
         const requestBody = await request.json()
         console.log(requestBody)
-        const accessToken = new AccessToken(requestBody)
+        const accessTokenDto = new AccessToken(requestBody)
         return NextResponse.json({ message: "Signed in successfully" })
     } catch (error) {
         console.log("[Error in Signin Controller]", error)
