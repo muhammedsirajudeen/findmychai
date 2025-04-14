@@ -1,11 +1,15 @@
+'use client'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { MainNav } from "@/components/main-nav"
 import { MobileNav } from "@/components/mobile-nav"
 import { Badge } from "@/components/ui/badge"
 import { CupSodaIcon as Cup } from "lucide-react"
+import { useContext } from "react"
+import GlobalContext from "../provider/GlobalContext"
 
 export default function Profile() {
+  const { user } = useContext(GlobalContext)
   return (
     <div className="min-h-screen bg-amber-50 flex flex-col">
       <div className="hidden md:block">
@@ -19,7 +23,7 @@ export default function Profile() {
             <AvatarFallback className="bg-amber-200 text-amber-800 text-xl">JD</AvatarFallback>
           </Avatar>
 
-          <h1 className="mt-4 text-2xl font-bold text-amber-900">Jane Doe</h1>
+          <h1 className="mt-4 text-2xl font-bold text-amber-900">{user?.name}</h1>
           <p className="text-amber-700">Chai Enthusiast</p>
 
           <div className="flex items-center mt-2 bg-amber-100 rounded-full px-4 py-1">

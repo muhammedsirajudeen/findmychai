@@ -5,8 +5,13 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { AxiosError } from "axios";
 import { toast } from "@/hooks/use-toast";
 import ToastStyles from "@/app/constant/ToastStyles";
+import { useContext } from "react";
+import GlobalContext from "@/app/provider/GlobalContext";
+import { useRouter } from "next/navigation";
 
 export default function GoogleLogin() {
+    const { setUser } = useContext(GlobalContext)
+    const router = useRouter()
     const login = useGoogleLogin({
         onSuccess: async tokenResponse => {
             console.log(tokenResponse)
@@ -15,6 +20,8 @@ export default function GoogleLogin() {
                     access_token: tokenResponse.access_token,
                 })
                 console.log(response.data)
+                setUser(response.data.user)
+                router.push('/dashboard')
                 toast({ title: 'Login Successful', description: 'You have successfully logged in', className: ToastStyles.success })
             } catch (error) {
                 const axiosError = error as AxiosError

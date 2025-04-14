@@ -1,11 +1,15 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
-export interface IUser extends Document {
+export interface User {
+    _id: string
     name: string;
     email: string;
     password: string;
-    avatar?: string;
+    avatar: string;
     createdAt: Date;
+}
+
+export interface IUser extends Omit<User, "_id">, Document {
 }
 
 const UserSchema: Schema<IUser> = new Schema(
@@ -30,6 +34,7 @@ const UserSchema: Schema<IUser> = new Schema(
         avatar: {
             type: String,
             default: '',
+            required: true
         },
         createdAt: {
             type: Date,

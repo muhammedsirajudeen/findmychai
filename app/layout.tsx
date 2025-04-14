@@ -5,6 +5,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { GoogleOAuthProvider } from "@react-oauth/google"
 import { Toaster } from "@/components/ui/toaster"
+import GlobalProvider from "./provider/GlobalProvider"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -26,7 +27,9 @@ export default function RootLayout({
         <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
           <Toaster />
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
-            {children}
+            <GlobalProvider>
+              {children}
+            </GlobalProvider>
           </ThemeProvider>
         </GoogleOAuthProvider>
       </body>
