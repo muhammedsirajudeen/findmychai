@@ -1,4 +1,3 @@
-//think about converting to trpc if u can nah that would be awesome i guess lets see
 import 'reflect-metadata'
 import { AccessToken } from "@/app/dto/auth/AccessTokenDto"
 import UserService from "@/app/service/UserService"
